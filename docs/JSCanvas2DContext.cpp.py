@@ -263,7 +263,49 @@ FunctionDoc( "CanvasRenderingContext2D.addSpiroControlPoints", "Draw an spiro (e
                             ctx.lineWidth = 1;
                             ctx.strokeStyle = 'red';
                             ctx.stroke();
-    """)],
+    """, ExampleDoc("""var anim = {
+	t: 0,
+	dx : window.innerWidth / 8,
+	dy : window.innerHeight / 8,
+	init: function(canvas) {
+		document.canvas.add(canvas)
+		this.ctx = canvas.getContext("2d");
+		this.points = [
+			{cx:this.dx * 1, cy : this.dy * 1,     type: 'c', freq: 100.0},
+			{cx:this.dx * 3, cy : this.dy * 3, type: 'c', freq: 120.0},
+			{cx:this.dx * 5, cy : this.dy * 3, type: 'c', freq: 140.0},
+			{cx:this.dx * 7, cy : this.dy * 1,    type: 'c', freq: 150.0},
+			{cx:this.dx * 7, cy : this.dy * 7, type: 'c', freq: 160.0},
+			{cx:this.dx * 5, cy : this.dy * 5, type: 'c', freq: 180.0},
+			{cx:this.dx * 3, cy : this.dy * 5, type: 'c', freq: 200.0},
+			{cx:this.dx * 1, cy : this.dy * 7, type: 'c', freq: 210.0},
+		];
+	}
+};
+
+draw = function(anim2) {
+	//anim = anim2;
+	var anim = this;
+	for (var i = 0; i < anim.points.length; i++) {
+		var point = anim.points[i];
+		var counter = Math.PI *2 / point.freq;
+		var fract = Math.sin( counter * anim.t)
+		point.x = point.cx + anim.dx * fract
+		point.y = point.cy + anim.dy * fract
+	}
+	anim.ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+	var converges = anim.ctx.addSpiroControlPoints(anim.points, true);
+	anim.ctx.lineWidth = 1;
+	anim.ctx.strokeStyle = 'red';
+	anim.ctx.stroke();
+	anim.t++;
+};
+
+var canvas = new Canvas(window.innerWidth, window.innerHeight);
+anim.init(canvas);
+setInterval(function() {
+	window.requestAnimationFrame(draw.bind(anim));
+}, 10);    """)],
     IS_Dynamic, IS_Public, IS_Fast,
     [ ParamDoc( "points", "Array of Point objects x: integer, y: integer, type: 'v'|'o'|'c'|'['|']'|'a'|'h'", "Object", NO_Default, IS_Obligated ),
      ParamDoc( "isOpen", "Is the curve open or closed", "boolean", "true", IS_Optional)]
