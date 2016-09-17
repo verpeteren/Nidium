@@ -101,12 +101,11 @@ void Spiro::bezctx_skia_close(bezctx_skia *z) {
 
 	if (!bc->is_open) {
 		//fprintf(bc->skiactx, "z\n");
+		bc->skiactx->closePath();
 	}
-	bc->skiactx->closePath();
 	free(bc);
 }
 // }}}
-
 
 } // namespace Graphics
 } // namespace Nidium
