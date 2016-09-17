@@ -60,6 +60,7 @@
                         '-ltranslator_lib',
                         '-lpreprocessor',
                         '-langle_common',
+                        '-lspiro',
                         '-lSDL2',
                         '-lGL',
                         '-lpng',

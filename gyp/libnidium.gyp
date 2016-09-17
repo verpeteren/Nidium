@@ -37,7 +37,8 @@
             '<(third_party_path)/ffmpeg/',
             '<(third_party_path)/libcoroutine/source/',
             '<(third_party_path)/basekit/source/',
-            '<(third_party_path)/angle/include/'
+            '<(third_party_path)/angle/include/',
+            '<(third_party_path)/spiro',
         ],
 
         'conditions': [
@@ -125,6 +126,7 @@
             '<(nidium_src_path)/Graphics/CanvasHandler.cpp',
             '<(nidium_src_path)/Graphics/Canvas3DContext.cpp',
             '<(nidium_src_path)/Graphics/SkiaContext.cpp',
+            '<(nidium_src_path)/Graphics/Spiro.cpp',
             '<(nidium_src_path)/Binding/JSImage.cpp',
             '<(nidium_src_path)/Binding/JSWindow.cpp',
             '<(nidium_src_path)/Binding/JSDocument.cpp',

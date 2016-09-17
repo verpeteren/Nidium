@@ -19,6 +19,7 @@
 #include "Graphics/Gradient.h"
 #include "Graphics/GLHeader.h"
 #include "Graphics/SkiaContext.h"
+#include "Graphics/Spiro.h"
 #include "Binding/JSCanvas.h"
 #include "Binding/JSDocument.h"
 #include "Macros.h"
@@ -249,6 +250,8 @@ static bool
 nidium_canvas2dctx_getPathBounds(JSContext *cx, unsigned argc, JS::Value *vp);
 static bool
 nidium_canvas2dctx_light(JSContext *cx, unsigned argc, JS::Value *vp);
+static bool
+nidium_canvas2dctx_addSpiroControlPoints(JSContext *cx, unsigned argc, JS::Value *vp);
 static bool nidium_canvas2dctx_attachGLSLFragment(JSContext *cx,
                                                   unsigned argc,
                                                   JS::Value *vp);
@@ -391,6 +394,10 @@ static JSFunctionSpec canvas2dctx_funcs[] = {
     JS_FN("setVertexOffset",
           nidium_canvas2dctx_setVertexOffset,
           3,
+          NIDIUM_JS_FNPROPS),
+    JS_FN("addSpiroControlPoints",
+          nidium_canvas2dctx_addSpiroControlPoints,
+          2,
           NIDIUM_JS_FNPROPS),
     JS_FS_END
 };
@@ -1142,6 +1149,7 @@ static bool nidium_canvas2dctxGradient_addColorStop(JSContext *cx,
                                                     unsigned argc,
                                                     JS::Value *vp)
 {
+
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject caller(cx, JS_THIS_OBJECT(cx, vp));
     JS::RootedString color(cx);
@@ -2064,6 +2072,125 @@ static bool nidium_canvas2dctx_prop_get(JSContext *cx,
 #undef CTX_PROP
 }
 
+bool nidium_canvas2dctx_addSpiroControlPoints(JSContext *cx, unsigned argc, JS::Value *vp)
+{
+    NIDIUM_JS_PROLOGUE_CLASS_NO_RET(Canvas2DContext, &Canvas2DContext_class);
+    spiro_cp * points;
+    struct {
+        unsigned good:1;
+        unsigned bez:1;
+        unsigned points:1;
+    } cleanUp;
+
+    memset(&cleanUp, 0, sizeof(cleanUp));
+
+    bool is_open = false;
+    NIDIUM_LOG_2D_CALL();
+    JS::RootedObject arrayObj(cx);
+    if (!JS_ConvertArguments(cx, args, "o/b", arrayObj.address(), &is_open)) {
+        return false;
+    }
+    if (! JS_IsArrayObject(cx, arrayObj)) {
+        JS_ReportError(cx, "First parameter must be an array");
+        return false;
+    }
+    uint32_t array_len;
+    JS::AutoIdArray ida(cx, JS_Enumerate(cx, arrayObj));
+    if (! ida) {
+        return false;
+    }
+    array_len = ida.length();
+    cleanUp.good = cleanUp.points = ( (points = (spiro_cp *) malloc(array_len * sizeof(*points)) ) != NULL);
+    for (int32_t i = 0; i < array_len; i++) {
+        JS::RootedId id(cx, ida[i]);
+        JS::RootedValue lineVal(cx);
+        JS_GetPropertyById(cx, arrayObj, id, &lineVal);
+        if (lineVal.isObject()) {
+            //todo: error if wrong, and better cleanup
+            JS::RootedObject lineObj(cx, &lineVal.toObject());
+
+            JS::RootedValue xVal(cx);
+            JS_GetProperty(cx, lineObj, "x", &xVal);
+            JS::ToNumber(cx, xVal, &points[i].x);
+
+
+            JS::RootedValue yVal(cx);
+            JS_GetProperty(cx, lineObj, "y", &yVal);
+            JS::ToNumber(cx, yVal, &points[i].y);
+
+            char type = 'o';
+            JS::RootedValue typeVal(cx);
+            JS_GetProperty(cx, lineObj, "type", &typeVal);
+            if (typeVal.isString()) {
+                JS::RootedString typeStr(cx, typeVal.toString());
+                JSAutoByteString ctype(cx, typeStr);
+                type = ctype.ptr()[0];
+            }
+            switch( type ) {
+                case ']': //ft
+                    points[i].ty = SPIRO_RIGHT;
+                    break;
+                case '[': //ft
+                    points[i].ty = SPIRO_LEFT;
+                    break;
+                case 'v': //ft
+                    points[i].ty = SPIRO_CORNER;
+                    break;
+                case 'c': //ft
+                    points[i].ty = SPIRO_G2;
+                    break;
+                case 'o': //ft
+                default:
+                    points[i].ty = SPIRO_G4;
+                    break;
+            }
+        }
+    }
+    bezctx_skia *bc;
+    cleanUp.good = cleanUp.bez = (( bc = Spiro::new_bezctx_skia(SKIACTX) ) != NULL);
+    if (cleanUp.bez) {
+        SpiroCPsToBezier(points, array_len, is_open, (bezctx*) bc);
+        args.rval().setBoolean(bc->gotnans);
+    } else {
+        args.rval().setBoolean(false);
+    }
+    if ( cleanUp.bez) {
+        Spiro::bezctx_skia_close(bc);
+    }
+    if (cleanUp.points) {
+        free(points);
+    }
+
+    return true;
+}
+
+#if 0
+bool nidium_canvas2dctx_addSpiroPlateString(JSContext *cx, unsigned argc, JS::Value *vp)
+{
+    NIDIUM_JS_PROLOGUE_CLASS_NO_RET(Nidium::Binding::Canvas2DContext, &Canvas2DContext_class);
+    NIDIUM_JS_PROLOGUE_CLASS_NO_RET(Canvas2DContext, &Canvas2DContext_class);
+    NIDIUM_LOG_2D_CALL();
+
+    JS::RootedString str(cx);
+    if (!JS_ConvertArguments(cx, args, "S", str.address())) {
+        return false;
+    }
+
+    JSAutoByteString text;
+    text.encodeUtf8(cx, str);
+    /*pseudocode
+    spiro_cp *points = JSSpiro::PlateToPath(text);
+    */
+
+    bezctx_skia * bc = Spiro::new_bezctx_skia(SKIACTX);
+    SpiroCPsToSpiro(points, (bezctx*) bc)
+    args.rval().setBoolean(bc->gotnans);
+
+    Spiro::bezctx_skia_close(bc);
+
+    return true;
+}
+#endif
 void CanvasGradient_Finalize(JSFreeOp *fop, JSObject *obj)
 {
     Gradient *gradient = static_cast<Gradient *>(JS_GetPrivate(obj));

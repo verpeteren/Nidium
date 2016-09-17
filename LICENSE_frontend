@@ -2459,3 +2459,30 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+
+###############################################################################
+Spiro - simplifies the drawing of beautiful curves
+###############################################################################
+
+Copyright (C) 2007 Raph Levien
+
+All code in this package is released under the terms of the GNU GPL,
+version 2 or later, at your choice.
+
+Further, there is a provisional patent application filed for the
+underlying curve technology. The following patent grant applies to any
+patent which may be issued as a result of that application:
+
+Whereas, Raph Levien (hereinafter "Inventor") has obtained patent
+protection for related technology (hereinafter "Patented Technology"),
+Inventor wishes to aid the the GNU free software project in achieving
+its goals, and Inventor also wishes to increase public awareness of
+Patented Technology, Inventor hereby grants a fully paid up,
+nonexclusive, irrevocable, royalty free license to practice the
+patents listed below ("the Patents") if and only if practiced in
+conjunction with software distributed under the terms of any version
+of the GNU General Public License as published by the Free Software
+Foundation, 59 Temple Place, Suite 330, Boston, MA 02111. Inventor
+reserves all other rights, including without limitation, licensing for
+software not distributed under the GNU General Public License.
+

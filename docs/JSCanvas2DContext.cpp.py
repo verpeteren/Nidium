@@ -245,8 +245,33 @@ FunctionDoc( "CanvasRenderingContext2D.arc", "Create an arc.",
     NO_Returns
 )
 
+FunctionDoc( "CanvasRenderingContext2D.addSpiroControlPoints", "Draw an spiro (eurler spiral/clothoid) through a set of points.",
+    SeesDocs( "CanvasRenderingContext2D.addSpiroControlPoints|CanvasRenderingContext2D.beginPath|CanvasRenderingContext2D.moveTo|CanvasRenderingContext2D.lineTo|CanvasRenderingContext2D.closePath|CanvasRenderingContext2D.bezierCurveTo" ),
+    [ExampleDoc("""
+    var canvas = new Canvas(window.innerWidth, window.innerHeight);
+    document.canvas.add(canvas)
+    var ctx = canvas.getContext("2d");
+    var points = [ ]
+    var m = window.innerHeight / 2.0;
+    var step = 100;
+    for ( var i = 0; i < window.innerWidth; i += step ) {
+            points.push( {x: i,                 y: 0,      type: 'c'} );
+                    points.push( {x: i + step / 10 * 2, y: m,      type: 'c'} );
+                            points.push( {x: i + step / 10 * 5, y: m * 2 ,  type: 'c'} );
+                            };
+                            var converges = ctx.addSpiroControlPoints(points, false);
+                            ctx.lineWidth = 1;
+                            ctx.strokeStyle = 'red';
+                            ctx.stroke();
+    """)],
+    IS_Dynamic, IS_Public, IS_Fast,
+    [ ParamDoc( "points", "Array of Point objects x: integer, y: integer, type: 'v'|'o'|'c'|'['|']'|'a'|'h'", "Object", NO_Default, IS_Obligated ),
+     ParamDoc( "isOpen", "Is the curve open or closed", "boolean", "true", IS_Optional)]
+    ReturnDoc("Indicator if the graph converges", "boolean")
+)
+
 FunctionDoc( "CanvasRenderingContext2D.quadraticCurveTo", "Set the next coordinate for a quadratic curve on a path.",
-    SeesDocs( "CanvasRenderingContext2D.beginPath|CanvasRenderingContext2D.moveTo|CanvasRenderingContext2D.lineTo|CanvasRenderingContext2D.closePath|CanvasRenderingContext2D.bezierCurveTo" ),
+    SeesDocs( "CanvasRenderingContext2D.addSpiroControlPoints|CanvasRenderingContext2D.beginPath|CanvasRenderingContext2D.moveTo|CanvasRenderingContext2D.lineTo|CanvasRenderingContext2D.closePath|CanvasRenderingContext2D.bezierCurveTo" ),
     NO_Examples,
     IS_Dynamic, IS_Public, IS_Fast,
     [ ParamDoc( "cx", "cX position", "float", NO_Default, IS_Obligated ),
@@ -257,7 +282,7 @@ FunctionDoc( "CanvasRenderingContext2D.quadraticCurveTo", "Set the next coordina
 )
 
 FunctionDoc( "CanvasRenderingContext2D.bezierCurveTo", "Set the next coordinate for a bezier curve on a path.",
-    SeesDocs( "CanvasRenderingContext2D.beginPath|CanvasRenderingContext2D.moveTo|CanvasRenderingContext2D.lineTo|CanvasRenderingContext2D.closePath|CanvasRenderingContext2D.quadraticCurveTo" ),
+    SeesDocs( "CanvasRenderingContext2D.addSpiroControlPoints|CanvasRenderingContext2D.beginPath|CanvasRenderingContext2D.moveTo|CanvasRenderingContext2D.lineTo|CanvasRenderingContext2D.closePath|CanvasRenderingContext2D.quadraticCurveTo" ),
     NO_Examples,
     IS_Dynamic, IS_Public, IS_Fast,
     [ ParamDoc( "cx1", "cX1position", "float", NO_Default, IS_Obligated ),

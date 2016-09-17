@@ -35,6 +35,7 @@ Deps.set(
     "SDL2",
     "rapidxml",
     "ffmpeg",
+    "spiro",
     Deps.Konstruct("libnidiumcore", "configure_libnidiumcore")
 )
 
@@ -276,6 +277,16 @@ def libnotify():
         "location": DEPEDENCY_REPO + "/libnotify-0.7.6.tar.gz",
         "build": ["./configure", "make"],
         "outputs": ["libnotify/.libs/libnotify.a"]
+    }
+
+@Deps.register("spiro")
+def spiro():
+    return {
+        "location": Deps.GitRepo("https://github.com/fontforge/libspiro.git", "06af4df"),
+        "build": [ "libtoolize",
+                   "autoreconf||automake --add-missing --foreign -Wall",
+                   "./configure --with-pic --enable-static --enable-shared", "make" ],
+        "outputs": [".libs/libspiro.a", ".libs/libspiro.so"]
     }
 
 
