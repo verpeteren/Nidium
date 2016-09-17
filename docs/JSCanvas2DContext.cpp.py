@@ -305,7 +305,34 @@ var canvas = new Canvas(window.innerWidth, window.innerHeight);
 anim.init(canvas);
 setInterval(function() {
 	window.requestAnimationFrame(draw.bind(anim));
-}, 10);    """)],
+}, 10);    """), ExampleDoc("""var drawPoints = function(ctx, points) {
+	if (points.length) {
+		ctx.addSpiroControlPoints(points);
+		ctx.closePath();
+		ctx.stroke();
+	}
+};
+
+var canvas = new Canvas(window.innerWidth, window.innerHeight);
+document.canvas.add(canvas);
+var ctx = canvas.getContext("2d");
+ctx.lineWidth = 1;
+ctx.strokeStyle = 'red';
+new HTTP("http://levien.com/type/myfonts/inconsolata/source/ampersand.plate", function(ev) {
+	//this is a dumb-ass parser, it cannot handle comments, nor understands the 'plate'
+	var rePattern = /[^#]\(([ozv\]\[])( (\d+) (\d+))?\)/g
+	var match;
+	var points = [];
+	while (match = rePattern.exec(ev.data)) {
+		if (match[1] == 'z') {
+			drawPoints(ctx, points);
+			points = [];
+		} else if (match[3] && match[4] ) {
+			points.push({x: match[3], y: match[4], type: match[1]});
+		}
+	}
+	drawPoints(ctx, points);
+}); """)],
     IS_Dynamic, IS_Public, IS_Fast,
     [ ParamDoc( "points", "Array of Point objects x: integer, y: integer, type: 'v'|'o'|'c'|'['|']'|'a'|'h'", "Object", NO_Default, IS_Obligated ),
      ParamDoc( "isOpen", "Is the curve open or closed", "boolean", "true", IS_Optional)]
